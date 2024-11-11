@@ -37,15 +37,14 @@ CONSUMABLES = [
 
 PURIFICATION = ["COLON"]
 
-MISC = ["SABLE", "SILICE", "GRANU", "SODIUM", "JAVEL"]
+MISC = ["SABLE", "SILICE", "GRANU", "SODIUM", "JAVEL", "ACI"]
 
 
-class Item:
+class Items:
     """
     Class to handle all items in the excel file. recieve 1 argument:
     Path (string) to the corresponding Excel file.
     """
-
 
     def __init__(self, path):
         self.path = path
@@ -55,12 +54,8 @@ class Item:
         self.df = self.__clean_df(self.df)
         self.df = self.__categorize_items(self.df)
 
-        # Create categories dataframe
-        self.solvents = self.df.loc[self.df[CATEGORY] == "solvent",[CODE, DESCRIPTION]]
-        self.consumables = self.df.loc[self.df[CATEGORY] == "consumable",[CODE, DESCRIPTION]]
-        self.purification = self.df.loc[self.df[CATEGORY] == "purification",[CODE, DESCRIPTION]]
-        self.misc = self.df.loc[self.df[CATEGORY] == "miscelanous",[CODE, DESCRIPTION]]
-        self.others = self.df.loc[self.df[CATEGORY] == "other",[CODE, DESCRIPTION]]
+        # create a variable giving all categories for the stock
+        self.categories = [i for i in self.df["category"].unique()]
 
     @classmethod
     def __load_df(cls, path: str) -> pd.DataFrame:
@@ -89,7 +84,8 @@ class Item:
                     df.columns[0]: CODE,
                     df.columns[1]: MANUFACTURER,
                     df.columns[5]: DESCRIPTION,
-                }
+                },
+                inplace=True,
             )
         except IndexError:
             print("Wrong dataframe format")
@@ -100,9 +96,9 @@ class Item:
         df = df.dropna(subset=MANUFACTURER)
 
         # Homogenize data strings in description column
-        df[DESCRIPTION] = df[DESCRIPTION].str.replace("\n", " ")
-        df[DESCRIPTION] = df[DESCRIPTION].str.capitalize()
-        df[DESCRIPTION] = df[DESCRIPTION].str.strip()
+        df.loc[:, DESCRIPTION] = df[DESCRIPTION].str.replace("\n", " ")
+        df.loc[:, DESCRIPTION] = df[DESCRIPTION].str.capitalize()
+        df.loc[:, DESCRIPTION] = df[DESCRIPTION].str.strip()
 
         return df
 
@@ -110,16 +106,17 @@ class Item:
     def __categorize_items(cls, df: pd.DataFrame) -> pd.DataFrame:
         """
         Input a dataframe containing all items and create a columns "category" to categorize all items prior to the constant keywords, case insensitive.
+        Update the self.categories variable
         """
         df.loc[
             df[DESCRIPTION].str.contains("|".join(SOLVENTS), case=False),
             CATEGORY,
-        ] = "solvent"
+        ] = "solvents"
 
         df.loc[
             df[DESCRIPTION].str.contains("|".join(CONSUMABLES), case=False),
             CATEGORY,
-        ] = "consumable"
+        ] = "consumables"
 
         df.loc[
             df[DESCRIPTION].str.contains("|".join(PURIFICATION), case=False),
@@ -131,6 +128,20 @@ class Item:
             CATEGORY,
         ] = "miscelanous"
 
-        df.loc[df[CATEGORY].isnull(), CATEGORY] = "other"
+        df.loc[df[CATEGORY].isnull(), CATEGORY] = "others"
         return df
 
+    def select_category(self, category: str) -> pd.DataFrame:
+        """
+        From a category, select the corresponding items from the dataframe with their codes
+        """
+        return self.df.loc[self.df[CATEGORY] == category, [DESCRIPTION, CODE]]
+
+    def item_from_code(self, code: int) -> str:
+        """
+        return the item's name from his code
+        """
+        return self.df.loc[self.df[CODE] == code, DESCRIPTION].iloc[0]
+
+    def __str__(self):
+        return str(self.df)
