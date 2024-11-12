@@ -43,7 +43,7 @@ def create_connection(path: str):
         except Exception as e:
             print(f"Erreur lors de l'accès à la connexion : {e}")
             
-            # Try to confirm the pop for other conneciton failed  => try to replace wnd[1] by wnd[0] if not working
+            # Try to confirm the pop for other connection failed  => try to replace wnd[1] by wnd[0] if not working -----------------------------To be Checked!
             try:
                 if session.findById("wnd[1]").Text == "Information":
                     session.findById("wnd[1]").sendVKey(0)

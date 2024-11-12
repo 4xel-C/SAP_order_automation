@@ -5,30 +5,11 @@
 # PATH_STOCK = r"data/Stock-article-magasin-CRLD---2022.V2.xlsx"
 
 # USE THIS IMPORT WITH THE NEW EXCEL FILE
-from items_updated import Items, DESCRIPTION    # To be used with the new xlsx file
+from items_updated import Items, DESCRIPTION, CATEGORY    # To be used with the new xlsx file
 from sap_process import create_connection, order_product, confirm_transaction
 PATH_SAP = r"C:\Program Files (x86)\SAP\FrontEnd\SAPgui\saplogon.exe"
 PATH_STOCK = r"data\Stock article magasin CRLD - updated.xlsx"   # To be used with the new file
 
-def display_categories(stock: Items) -> None:
-    """
-    Display in the command prompt the menu to select the item's category
-    """
-    print()
-    for i, j in enumerate(stock.categories):
-        print(f"[{i}]",  j)
-    print()
-
-def display_items(stock: Items) -> None:
-    """
-    Display in the command promt the items of the selected category
-    """
-    print()
-    for i, j in enumerate(stock[DESCRIPTION]):
-        print(f"[{i}]","----", j)
-
-    print()
-  
 
 if __name__ == "__main__":
 
@@ -43,12 +24,12 @@ if __name__ == "__main__":
     # Main Loop
     while True:
         print("\nChoose the categories/items using their corresponding number\n\nType 'cart' to see or remove your selected items\nType 'order' to validate your order")
-        display_categories(stock)
+        stock.display_categories()
 
         selection = input("Select category => ")
 
         # show cart if selected
-        if selection == "cart":
+        if selection.upper() == "CART":
 
             # restart the main loop if cart empty after informing the user
             if not cart:
@@ -85,7 +66,7 @@ if __name__ == "__main__":
             continue
 
         # ordering process, if yes break from the main loop
-        elif selection == "order":
+        elif selection.upper() == "ORDER" or selection.upper() == "BUY":
             if not cart:
                 print("Your cart is empty!")
                 input()
@@ -100,13 +81,14 @@ if __name__ == "__main__":
 
         # select all the items from the selected categories
         try:
-            items = stock.select_category(stock.categories[int(selection)])
+            category = (stock.categories[int(selection)])
         except (ValueError, IndexError):
             print("Wrong input\n")
             continue
 
-        display_items(items)
-
+        stock.display_categorie_items(category)
+        items = stock.select_category(category)
+        
         # Category submenu loop
         while True:
             selection = input("Select your Items -> ")
@@ -121,7 +103,7 @@ if __name__ == "__main__":
                 continue
             
             # add the selected item in cart
-            if item_code  not in cart:
+            if item_code not in cart:
                 cart[item_code] = 1
             else:
                 cart[item_code] += 1

@@ -36,7 +36,7 @@ CONSUMABLES = [
 
 PURIFICATION = ["COLON"]
 
-MISC = ["SABLE", "SILICE", "GRANU", "SODIUM", "JAVEL", "ACI"]
+MISC = ["SABLE", "GEL", "GRANU", "SODIUM", "JAVEL", "ACI"]
 
 
 class Items:
@@ -50,11 +50,11 @@ class Items:
 
         # Create the DataFrame, clean and categorize items. using the class methods
         self.df = self.__load_df(path)
-        self.df = self.__clean_df(self.df)
-        self.df = self.__categorize_items(self.df)
+        self.__clean_df()
+        self.__categorize_items()
 
         # create a variable giving all categories for the stock
-        self.categories = [i for i in self.df["category"].unique()]
+        self.categories = [i for i in self.df[CATEGORY].unique()]
 
     @classmethod
     def __load_df(cls, path: str) -> pd.DataFrame:
@@ -71,17 +71,16 @@ class Items:
                 path = input("File not found, enter file path manually:")
         return df
 
-    @classmethod
-    def __clean_df(cls, df: pd.DataFrame) -> pd.DataFrame:
+    def __clean_df(self):
         """
         Clean the DataFrame by removing NaN values from manufacturer column, homogenizing values, and renaming columns
         used by the application to ensure consistency.
         """
         try:
-            df.rename(
+            self.df.rename(
                 columns={
-                    df.columns[0]: CODE,
-                    df.columns[2]: DESCRIPTION,
+                    self.df.columns[0]: CODE,
+                    self.df.columns[2]: DESCRIPTION,
                 },
                 inplace=True,
             )
@@ -90,55 +89,72 @@ class Items:
             sys.exit(1)
 
         # Homogenize data strings in description column
-        df.loc[:, DESCRIPTION] = df[DESCRIPTION].str.replace("\n", " ")
-        df.loc[:, DESCRIPTION] = df[DESCRIPTION].str.capitalize()
-        df.loc[:, DESCRIPTION] = df[DESCRIPTION].str.strip()
+        self.df.loc[:, DESCRIPTION] = self.df[DESCRIPTION].str.replace("\n", " ")
+        self.df.loc[:, DESCRIPTION] = self.df[DESCRIPTION].str.capitalize()
+        self.df.loc[:, DESCRIPTION] = self.df[DESCRIPTION].str.strip()
         
         # sort data by description
-        df.sort_values(by=DESCRIPTION, inplace=True)
-        
-        return df
+        self.df.sort_values(by=DESCRIPTION, inplace=True)
 
-    @classmethod
-    def __categorize_items(cls, df: pd.DataFrame) -> pd.DataFrame:
+    def __categorize_items(self):
         """
         Input a dataframe containing all items and create a columns "category" to categorize all items prior to the constant keywords, case insensitive.
         Update the self.categories variable
         """
-        df.loc[
-            df[DESCRIPTION].str.contains("|".join(SOLVENTS), case=False),
+        self.df.loc[
+            self.df[DESCRIPTION].str.contains("|".join(SOLVENTS), case=False),
             CATEGORY,
         ] = "solvents"
 
-        df.loc[
-            df[DESCRIPTION].str.contains("|".join(CONSUMABLES), case=False),
+        self.df.loc[
+            self.df[DESCRIPTION].str.contains("|".join(CONSUMABLES), case=False),
             CATEGORY,
         ] = "consumables"
 
-        df.loc[
-            df[DESCRIPTION].str.contains("|".join(PURIFICATION), case=False),
+        self.df.loc[
+            self.df[DESCRIPTION].str.contains("|".join(PURIFICATION), case=False),
             CATEGORY,
         ] = "purification"
 
-        df.loc[
-            df[DESCRIPTION].str.contains("|".join(MISC), case=False),
+        self.df.loc[
+            self.df[DESCRIPTION].str.contains("|".join(MISC), case=False),
             CATEGORY,
         ] = "miscelanous"
 
-        df.loc[df[CATEGORY].isnull(), CATEGORY] = "others"
-        return df
+        self.df.loc[self.df[CATEGORY].isnull(), CATEGORY] = "others"
 
-    def select_category(self, category: str) -> pd.DataFrame:
-        """
-        From a category, select the corresponding items from the dataframe with their codes
-        """
-        return self.df.loc[self.df[CATEGORY] == category, [DESCRIPTION, CODE]]
 
     def item_from_code(self, code: int) -> str:
         """
         return the item's name from his code
         """
         return self.df.loc[self.df[CODE] == code, DESCRIPTION].iloc[0]
+    
+    def display_categories(self) -> None:
+        """
+        Display in the command prompt the menu to select the item's category
+        """
+        print()
+        for i, j in enumerate(self.categories):
+            print(f"[{i}]",  j)
+        print()
 
+    def display_categorie_items(self, categorie) -> None:
+        """
+        Display in the command prompt the items of the selected category
+        """
+        df_category = self.df.loc[self.df[CATEGORY] == categorie]
+        
+        print()
+        for i, j in enumerate(df_category[DESCRIPTION]):
+            print(f"[{i}]","----", j)
+        print()
+    
+    def select_category(self, category: str) -> pd.DataFrame:
+        """
+        From a category, output the corresponding dataframe containing items from the dataframe with their codes
+        """
+        return self.df.loc[self.df[CATEGORY] == category, [DESCRIPTION, CODE]]
+    
     def __str__(self):
         return str(self.df)
