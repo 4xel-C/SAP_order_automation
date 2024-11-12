@@ -86,8 +86,8 @@ if __name__ == "__main__":
             print("Wrong input\n")
             continue
 
-        stock.display_categorie_items(category)
         items = stock.select_category(category)
+        stock.display_items(items)
         
         # Category submenu loop
         while True:

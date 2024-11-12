@@ -138,23 +138,22 @@ class Items:
         for i, j in enumerate(self.categories):
             print(f"[{i}]",  j)
         print()
-
-    def display_categorie_items(self, categorie) -> None:
-        """
-        Display in the command prompt the items of the selected category
-        """
-        df_category = self.df.loc[self.df[CATEGORY] == categorie]
-        
-        print()
-        for i, j in enumerate(df_category[DESCRIPTION]):
-            print(f"[{i}]","----", j)
-        print()
     
     def select_category(self, category: str) -> pd.DataFrame:
         """
         From a category, output the corresponding dataframe containing items from the dataframe with their codes
         """
         return self.df.loc[self.df[CATEGORY] == category, [DESCRIPTION, CODE]]
+    
+    @staticmethod
+    def display_items(df: pd.DataFrame) -> None:
+        """
+        Display in the command prompt a numerated list of the items in the dataframe
+        """      
+        print()
+        for i, j in enumerate(df[DESCRIPTION]):
+            print(f"[{i}]","----", j)
+        print()
     
     def __str__(self):
         return str(self.df)
