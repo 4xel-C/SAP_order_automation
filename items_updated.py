@@ -3,7 +3,6 @@ import sys
 
 # Create constants to work with the dataframe consistently
 CODE = "code"
-MANUFACTURER = "manufacturer"
 DESCRIPTION = "description"
 CATEGORY = "category"
 
@@ -82,18 +81,13 @@ class Items:
             df.rename(
                 columns={
                     df.columns[0]: CODE,
-                    df.columns[1]: MANUFACTURER,
-                    df.columns[5]: DESCRIPTION,
+                    df.columns[2]: DESCRIPTION,
                 },
                 inplace=True,
             )
         except IndexError:
             print("Wrong dataframe format")
             sys.exit(1)
-
-        # drop rows with empty "fabricant" column =>  No avaibility, change the NaN value for nmr tubes (so they  are not deleted)
-        df.loc[df[DESCRIPTION].str.contains("RMN"), MANUFACTURER] = "No data"
-        df = df.dropna(subset=MANUFACTURER)
 
         # Homogenize data strings in description column
         df.loc[:, DESCRIPTION] = df[DESCRIPTION].str.replace("\n", " ")
@@ -102,7 +96,7 @@ class Items:
         
         # sort data by description
         df.sort_values(by=DESCRIPTION, inplace=True)
-
+        
         return df
 
     @classmethod

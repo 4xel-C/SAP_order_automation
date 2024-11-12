@@ -1,10 +1,14 @@
-from items import Items, DESCRIPTION
-from sap_process import create_connection
+# from items import Items, DESCRIPTION
+# from sap_process import create_connection, order_product, confirm_transaction
 
-# configure PATH to SAP Logon and PATH to the excel file containing the stock
+# PATH_SAP = r"C:\Program Files (x86)\SAP\FrontEnd\SAPgui\saplogon.exe"
+# PATH_STOCK = r"data/Stock-article-magasin-CRLD---2022.V2.xlsx"
+
+# USE THIS IMPORT WITH THE NEW EXCEL FILE
+from items_updated import Items, DESCRIPTION    # To be used with the new xlsx file
+from sap_process import create_connection, order_product, confirm_transaction
 PATH_SAP = r"C:\Program Files (x86)\SAP\FrontEnd\SAPgui\saplogon.exe"
-PATH_STOCK = r"data/Stock-article-magasin-CRLD---2022.V2.xlsx"
-
+PATH_STOCK = r"data\Stock article magasin CRLD - updated.xlsx"   # To be used with the new file
 
 def display_categories(stock: Items) -> None:
     """
@@ -133,6 +137,13 @@ if __name__ == "__main__":
         print("Please  make sure SAP Logon is installed in your computer")
         print("Check that SAP path is provided into the variable 'PATH_SAP' from main.py")
         print("Order is cancelled.\n")
+        
+    # fill the sap form
+    order_product(session, cart)
+    
+    # confirm transaction and exit SAP program
+    # confirm_transaction(session)
+    
 
     
 
