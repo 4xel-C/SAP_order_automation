@@ -138,13 +138,8 @@ if __name__ == "__main__":
         print("Check that SAP path is provided into the variable 'PATH_SAP' from main.py")
         print("Order is cancelled.\n")
         
-    # fill the sap form
+    # fill the SAP form
     order_product(session, cart)
     
     # confirm transaction and exit SAP program
     # confirm_transaction(session)
-    
-
-    
-
-    
