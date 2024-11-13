@@ -1,14 +1,8 @@
-# from items import Items, DESCRIPTION
-# from sap_process import create_connection, order_product, confirm_transaction
-
-# PATH_SAP = r"C:\Program Files (x86)\SAP\FrontEnd\SAPgui\saplogon.exe"
-# PATH_STOCK = r"data/Stock-article-magasin-CRLD---2022.V2.xlsx"
-
-# USE THIS IMPORT WITH THE NEW EXCEL FILE
-from items_updated import Items, DESCRIPTION, CATEGORY    # To be used with the new xlsx file
+from items import Items, DESCRIPTION, CATEGORY    
 from sap_process import create_connection, order_product, confirm_transaction
+
 PATH_SAP = r"C:\Program Files (x86)\SAP\FrontEnd\SAPgui\saplogon.exe"
-PATH_STOCK = r"data\Stock article magasin CRLD - updated.xlsx"   # To be used with the new file
+PATH_STOCK = r"data\Stock article magasin CRLD - updated.xlsx"
 
 
 if __name__ == "__main__":

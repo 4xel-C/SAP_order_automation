@@ -2,6 +2,7 @@ import subprocess
 import sys
 import win32com.client
 
+USER = "GFEEU_D1-368"   # used in the sap_process 
 
 def create_connection(path: str):
     """
@@ -86,7 +87,7 @@ def order_product(session, cart):
 
     # Check if on the right page before creating the list of product to order
     if session.findById("wnd[0]").Text == "Create Reservation: New Items":
-        session.findById("wnd[0]/usr/txtRKPF-WEMPF").text = "GFEEU_D1-368"
+        session.findById("wnd[0]/usr/txtRKPF-WEMPF").text = USER
         session.findById("wnd[0]/usr/subBLOCK:SAPLKACB:1001/ctxtCOBL-KOSTL").text = "PF04121100"
         
         # Add each element of the cart in each line of SAP form
