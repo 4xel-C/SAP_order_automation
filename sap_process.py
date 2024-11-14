@@ -71,7 +71,7 @@ def create_connection(path: str):
 
 def order_product(session, cart: dict) -> None:
     """
-    
+    Check which SAP page is open or crawl through the pages to fill the ordering form.
     """
     # Enter create reservation menu and inject information
     session.findById("wnd[0]").maximize()

@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
             print(f"----{stock.item_from_code(item_code)} added to your cart\n")
     
-    # Enter here the code to sap_process
+    # Create connection with SAP and enter orders information
     try:
         session = create_connection(PATH_SAP)
     except FileNotFoundError:
