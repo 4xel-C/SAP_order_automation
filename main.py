@@ -96,11 +96,15 @@ if __name__ == "__main__":
                 print("Wrong input\n")
                 continue
             
-            # add the selected item in cart
-            if item_code not in cart:
-                cart[item_code] = 1
-            else:
+            # add the selected item in cart, display an error message if cart too big (limit 19)
+            if item_code in cart:
                 cart[item_code] += 1
+            elif len(cart) == 19: 
+                print()
+                print("!---Your cart is full---!")
+                print("Please delete some lines\n")
+            else:
+                cart[item_code] = 1
 
             print(f"----{stock.item_from_code(item_code)} added to your cart\n")
     

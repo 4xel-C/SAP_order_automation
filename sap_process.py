@@ -7,21 +7,24 @@ USER = "GFEEU_D1-368"   # used in the sap_process
 def create_connection(path: str):
     """
     Create connection on SAP, input a string: path of the local application, and return a session
+    The fonction will first check is a session is open. If a connection is already made and a session open,
+    it will return the session only if a session is on a page recognize by the rest of the code; 
+    other wise, it will close the connection and start a fresh one.
     """
     # Initialize objects
     application = None
     connection = None
     session = None
 
-    # Check if SAP is already open
+    # Check if SAP is already open, if not, open SAP
     try:
         SapGuiAuto = win32com.client.GetObject("SAPGUI")
     except Exception:
         SapGuiAuto = None
-
-    if not SapGuiAuto:
         subprocess.Popen(path)
         print("Opening local SAP application...")
+        
+        # Loop until SAP is open and SAPGUI is detected
         while not SapGuiAuto:
             try:
                 SapGuiAuto = win32com.client.GetObject("SAPGUI")
@@ -34,24 +37,28 @@ def create_connection(path: str):
     except Exception as e:
         print(f"Erreur lors de l'accès à SAP GUI : {e}")
 
-    
-    # Connection if not already connected
-    if application is not None and not application.Children.Count > 0:
-        try:
-            connection = application.OpenConnection(
-                "010 SAP R/3 Production (PBC)", True
-            )
-        except Exception as e:
-            print(f"Erreur lors de l'accès à la connexion : {e}")
-            
-            # Try to confirm the pop for other connection failed  => try to replace wnd[1] by wnd[0] if not working -----------------------------To be Checked!
-            try:
-                if session.findById("wnd[1]").Text == "Information":
-                    session.findById("wnd[1]").sendVKey(0)
-            except: 
-                pass
-    else:
+    # Check if already connected and a session open
+    if application.Children.Count > 0:
         connection = application.Children(0)
+        session = connection.Children(0)
+        
+        # if a session is already open in an unknown page: close the sessions and start a connection again, otherwise, return the session
+        if session.findById("wnd[0]").Text not in ["SAP Easy Access", "Create Reservation: Initial Screen", "Create Reservation: New Items"]:
+            session.findById("wnd[0]").close()
+            
+            # if a pop-up appear
+            if session.Children.Count > 1:
+                session.findById("wnd[1]/usr/btnSPOP-OPTION1").press()
+        else:
+            return session
+            
+    # Connection if not already connected
+    try:
+        connection = application.OpenConnection(
+            "010 SAP R/3 Production (PBC)", True
+        )
+    except Exception as e:
+        print(f"Erreur lors de l'accès à la connexion : {e}")
 
     # create session and communicate with API
     if connection is not None:
@@ -59,19 +66,16 @@ def create_connection(path: str):
             session = connection.Children(0)
         except Exception as e:
             print(f"Erreur lors de l'accès à la session : {e}")
-
+    
     return session
 
-def order_product(session, cart):
-    # Check if SAP is on an unknown page:
-    if session.findById("wnd[0]").Text not in  ["Create Reservation: Initial Screen", "SAP Easy Access", "Create Reservation: New Items"]:
-        print("Please close your SAP application and retry your order")
-        sys.exit(2)
-        return
+def order_product(session, cart: dict) -> None:
+    """
     
+    """
     # Enter create reservation menu and inject information
     session.findById("wnd[0]").maximize()
-    
+
     # Check if on the right page before manipulation
     if session.findById("wnd[0]").Text == "SAP Easy Access":
         session.findById("wnd[0]/tbar[0]/okcd").Text = "MB21"
@@ -96,6 +100,7 @@ def order_product(session, cart):
             session.findById(f"wnd[0]/usr/sub:SAPMM07R:0521/txtRESB-ERFMG[{i},26]").text = qty
             session.findById(f"wnd[0]/usr/sub:SAPMM07R:0521/ctxtRESB-LGORT[{i},53]").text = "RE01"
 
+ 
 def confirm_transaction(session):
     # session.findById("wnd[0]/tbar[0]/btn[11]").press()
     session.findById("wnd[0]").Close()
