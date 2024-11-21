@@ -122,4 +122,6 @@ if __name__ == "__main__":
     order_product(session, cart)
     
     # confirm transaction and exit SAP program
-    # confirm_transaction(session)
+    confirm_transaction(session)
+    
+    input("Order successfully processed!")
