@@ -117,11 +117,12 @@ if __name__ == "__main__":
         print("Please  make sure SAP Logon is installed in your computer")
         print("Check that SAP path is provided into the variable 'PATH_SAP' from main.py")
         print("Order is cancelled.\n")
+        input()
         
     # fill the SAP form
     order_product(session, cart)
     
     # confirm transaction and exit SAP program
-    # confirm_transaction(session)
+    confirm_transaction(session)
     
     input("Order successfully processed!")
