@@ -1,8 +1,6 @@
+from config import COST_CENTER, SERVER, USER 
 import subprocess
-import sys
 import win32com.client
-
-USER = "GFEEU_D1-368"   # used in the sap_process 
 
 def create_connection(path: str):
     """
@@ -55,7 +53,7 @@ def create_connection(path: str):
     # Connection if not already connected
     try:
         connection = application.OpenConnection(
-            "010 SAP R/3 Production (PBC)", True
+            SERVER, True
         )
     except Exception as e:
         print(f"Erreur lors de l'accès à la connexion : {e}")
@@ -92,7 +90,7 @@ def order_product(session, cart: dict) -> None:
     # Check if on the right page before creating the list of product to order
     if session.findById("wnd[0]").Text == "Create Reservation: New Items":
         session.findById("wnd[0]/usr/txtRKPF-WEMPF").text = USER
-        session.findById("wnd[0]/usr/subBLOCK:SAPLKACB:1001/ctxtCOBL-KOSTL").text = "PF04121100"
+        session.findById("wnd[0]/usr/subBLOCK:SAPLKACB:1001/ctxtCOBL-KOSTL").text = COST_CENTER
         
         # Add each element of the cart in each line of SAP form
         for i, (item, qty) in enumerate(cart.items()):

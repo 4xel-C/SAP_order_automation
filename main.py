@@ -1,9 +1,6 @@
-from items import Items, DESCRIPTION, CATEGORY    
-from sap_process import create_connection, order_product, confirm_transaction
-
-PATH_SAP = r"C:\Program Files (x86)\SAP\FrontEnd\SAPgui\saplogon.exe"
-PATH_STOCK = r"data\Stock article magasin CRLD - updated.xlsx"
-
+from config import PATH_SAP, PATH_STOCK, AUTO_CONFIRM
+from sap_utils.items import Items
+from sap_utils.sap_process import create_connection, order_product, confirm_transaction
 
 if __name__ == "__main__":
 
@@ -123,6 +120,7 @@ if __name__ == "__main__":
     order_product(session, cart)
     
     # confirm transaction and exit SAP program
-    confirm_transaction(session)
+    if AUTO_CONFIRM:
+        confirm_transaction(session)
     
     input("Order successfully processed!")
