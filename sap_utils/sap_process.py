@@ -2,7 +2,7 @@ from config import COST_CENTER, SERVER, USER
 import subprocess
 import win32com.client
 
-def create_connection(path: str):
+def create_connection(path: str) -> win32com.client.Dispatch:
     """
     Create connection on SAP, input a string: path of the local application, and return a session
     The fonction will first check is a session is open. If a connection is already made and a session open,
@@ -99,7 +99,7 @@ def order_product(session, cart: dict) -> None:
             session.findById(f"wnd[0]/usr/sub:SAPMM07R:0521/ctxtRESB-LGORT[{i},53]").text = "RE01"
 
  
-def confirm_transaction(session):
+def confirm_transaction(session: win32com.client.Dispatch) -> None: 
     # session.findById("wnd[0]/tbar[0]/btn[11]").press()
     session.findById("wnd[0]").Close()
     session.findById("wnd[1]/usr/btnSPOP-OPTION1").press()

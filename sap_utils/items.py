@@ -45,7 +45,7 @@ class Items:
     Path (string) to the corresponding Excel file.
     """
 
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         self.path = path
 
         # Create the DataFrame, clean and categorize items. using the class methods
@@ -71,7 +71,7 @@ class Items:
                 path = input("File not found, enter file path manually:")
         return df
 
-    def __clean_df(self):
+    def __clean_df(self) -> None:
         """
         Clean the DataFrame by removing NaN values from manufacturer column, homogenizing values, and renaming columns
         used by the application to ensure consistency.
@@ -96,7 +96,7 @@ class Items:
         # sort data by description
         self.df.sort_values(by=DESCRIPTION, inplace=True)
 
-    def __categorize_items(self):
+    def __categorize_items(self) -> None:
         """
         Input a dataframe containing all items and create a columns "category" to categorize all items prior to the constant keywords, case insensitive.
         Update the self.categories variable
