@@ -1,14 +1,8 @@
-# from items import Items, DESCRIPTION
-# from sap_process import create_connection, order_product, confirm_transaction
-
-# PATH_SAP = r"C:\Program Files (x86)\SAP\FrontEnd\SAPgui\saplogon.exe"
-# PATH_STOCK = r"data/Stock-article-magasin-CRLD---2022.V2.xlsx"
-
-# USE THIS IMPORT WITH THE NEW EXCEL FILE
-from items_updated import Items    # To be used with the new xlsx file
+from items import Items, DESCRIPTION, CATEGORY    
 from sap_process import create_connection, order_product, confirm_transaction
+
 PATH_SAP = r"C:\Program Files (x86)\SAP\FrontEnd\SAPgui\saplogon.exe"
-PATH_STOCK = r"data\Stock article magasin CRLD - updated.xlsx"   # To be used with the new file
+PATH_STOCK = r"data\Stock article magasin CRLD - updated.xlsx"
 
 
 if __name__ == "__main__":
@@ -102,15 +96,19 @@ if __name__ == "__main__":
                 print("Wrong input\n")
                 continue
             
-            # add the selected item in cart
-            if item_code not in cart:
-                cart[item_code] = 1
-            else:
+            # add the selected item in cart, display an error message if cart too big (limit 19)
+            if item_code in cart:
                 cart[item_code] += 1
+            elif len(cart) == 19: 
+                print()
+                print("!---Your cart is full---!")
+                print("Please delete some lines\n")
+            else:
+                cart[item_code] = 1
 
             print(f"----{stock.item_from_code(item_code)} added to your cart\n")
     
-    # Enter here the code to sap_process
+    # Create connection with SAP and enter orders information
     try:
         session = create_connection(PATH_SAP)
     except FileNotFoundError:
@@ -119,9 +117,12 @@ if __name__ == "__main__":
         print("Please  make sure SAP Logon is installed in your computer")
         print("Check that SAP path is provided into the variable 'PATH_SAP' from main.py")
         print("Order is cancelled.\n")
+        input()
         
     # fill the SAP form
     order_product(session, cart)
     
     # confirm transaction and exit SAP program
     confirm_transaction(session)
+    
+    input("Order successfully processed!")

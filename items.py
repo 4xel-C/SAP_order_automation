@@ -3,7 +3,6 @@ import sys
 
 # Create constants to work with the dataframe consistently
 CODE = "code"
-MANUFACTURER = "manufacturer"
 DESCRIPTION = "description"
 CATEGORY = "category"
 
@@ -37,7 +36,7 @@ CONSUMABLES = [
 
 PURIFICATION = ["COLON"]
 
-MISC = ["SABLE", "SILICE", "GRANU", "SODIUM", "JAVEL", "ACI"]
+MISC = ["SABLE", "GEL", "GRANU", "SODIUM", "JAVEL", "ACI"]
 
 
 class Items:
@@ -55,7 +54,7 @@ class Items:
         self.__categorize_items()
 
         # create a variable giving all categories for the stock
-        self.categories = [i for i in self.df["category"].unique()]
+        self.categories = [i for i in self.df[CATEGORY].unique()]
 
     @classmethod
     def __load_df(cls, path: str) -> pd.DataFrame:
@@ -81,18 +80,13 @@ class Items:
             self.df.rename(
                 columns={
                     self.df.columns[0]: CODE,
-                    self.df.columns[1]: MANUFACTURER,
-                    self.df.columns[5]: DESCRIPTION,
+                    self.df.columns[2]: DESCRIPTION,
                 },
                 inplace=True,
             )
         except IndexError:
             print("Wrong dataframe format")
             sys.exit(1)
-
-        # drop rows with empty "fabricant" column =>  No avaibility, change the NaN value for nmr tubes (so they  are not deleted)
-        self.df.loc[self.df[DESCRIPTION].str.contains("RMN"), MANUFACTURER] = "No data"
-        self.df = self.df.dropna(subset=MANUFACTURER)
 
         # Homogenize data strings in description column
         self.df.loc[:, DESCRIPTION] = self.df[DESCRIPTION].str.replace("\n", " ")
@@ -101,7 +95,6 @@ class Items:
         
         # sort data by description
         self.df.sort_values(by=DESCRIPTION, inplace=True)
-
 
     def __categorize_items(self):
         """
@@ -130,6 +123,7 @@ class Items:
 
         self.df.loc[self.df[CATEGORY].isnull(), CATEGORY] = "others"
 
+
     def item_from_code(self, code: int) -> str:
         """
         return the item's name from his code
@@ -144,23 +138,22 @@ class Items:
         for i, j in enumerate(self.categories):
             print(f"[{i}]",  j)
         print()
-
-    def display_categorie_items(self, categorie) -> None:
-        """
-        Display in the command promt the items of the selected category
-        """
-        df_category = self.df.loc[self.df[CATEGORY] == categorie]
-        
-        print()
-        for i, j in enumerate(df_category[DESCRIPTION]):
-            print(f"[{i}]","----", j)
-        print()
     
     def select_category(self, category: str) -> pd.DataFrame:
         """
         From a category, output the corresponding dataframe containing items from the dataframe with their codes
         """
         return self.df.loc[self.df[CATEGORY] == category, [DESCRIPTION, CODE]]
+    
+    @staticmethod
+    def display_items(df: pd.DataFrame) -> None:
+        """
+        Display in the command prompt a numerated list of the items in the dataframe
+        """      
+        print()
+        for i, j in enumerate(df[DESCRIPTION]):
+            print(f"[{i}]","----", j)
+        print()
     
     def __str__(self):
         return str(self.df)
